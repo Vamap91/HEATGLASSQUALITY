@@ -461,12 +461,17 @@ Retorne APENAS um JSON com a seguinte estrutura, sem texto adicional antes ou de
 }}
 
 INSTRUÇÕES IMPORTANTES:
-- Avalie cada critério com rigor, baseando-se exclusivamente na transcrição fornecida
-- Responda "sim" apenas se houver evidência clara na transcrição
-- Responda "não" se não houver evidência ou se o critério não foi atendido
+- Avalie cada critério de forma EQUILIBRADA e JUSTA, baseando-se na transcrição fornecida
+- Responda "sim" quando houver evidência direta OU implícita do critério sendo atendido
+- Considere o CONTEXTO e a INTENÇÃO do atendente, não apenas palavras exatas
+- Reconheça comportamentos positivos mesmo que não sigam scripts literalmente
+- Responda "não" apenas quando houver CLARA ausência ou violação do critério
 - Forneça justificativas específicas citando trechos da transcrição quando possível
 - Mantenha a estrutura de grupos conforme as categorias listadas acima
-- Seja objetivo e profissional nas avaliações
+- Seja objetivo, profissional e JUSTO nas avaliações
+- IMPORTANTE: Não seja excessivamente rigoroso - reconheça esforços e boas práticas do atendente
+- Para critérios de tom/entonação, avalie com base no contexto geral da conversa
+- Para critérios de procedimentos, considere se a ação foi realizada mesmo que de forma adaptada
 
 IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores de código como ```json ou ```, e sem explicações adicionais.
 """
