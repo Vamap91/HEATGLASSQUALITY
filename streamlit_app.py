@@ -1,6 +1,6 @@
 import streamlit as st
 # Configurações da página - DEVE ser a primeira chamada Streamlit
-st.set_page_config(page_title="MonitorAI (PRD)", page_icon="🔴", layout="centered")
+st.set_page_config(page_title="MonitorAI (Quality) - dev", page_icon="🔴", layout="centered")
 
 from openai import OpenAI
 import tempfile
@@ -162,7 +162,24 @@ IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto adicional, sem decoradores d
 """
     return prompt
 
-# Função para criar PDF
+
+# Função auxiliar para normalizar texto para PDF (remover caracteres problemáticos)
+def normalizar_texto_pdf(texto):
+    if not texto:
+        return ""
+    # Substituir caracteres especiais e remover emojis
+    texto = str(texto)
+    # Remover caracteres não-ASCII problemáticos
+    texto_limpo = ""
+    for char in texto:
+        if ord(char) < 256:
+            texto_limpo += char
+        else:
+            texto_limpo += " "
+    return texto_limpo
+
+
+# Função auxiliar para normalizar texto para PDF (remover caracteres problemáticos)
 def create_pdf(analysis, transcript_text, tipo_avaliacao):
     pdf = FPDF()
     pdf.add_page()
@@ -187,7 +204,7 @@ def create_pdf(analysis, transcript_text, tipo_avaliacao):
     pdf.set_font("Arial", "B", 14)
     pdf.cell(0, 10, "Resumo Geral", 0, 1)
     pdf.set_font("Arial", "", 12)
-    pdf.multi_cell(0, 10, analysis.get("resumo_geral", "N/A"))
+    pdf.multi_cell(0, 10, normalizar_texto_pdf(analysis.get("resumo_geral", "N/A")))
     pdf.ln(5)
     
     # Observações
@@ -195,7 +212,7 @@ def create_pdf(analysis, transcript_text, tipo_avaliacao):
         pdf.set_font("Arial", "B", 14)
         pdf.cell(0, 10, "Observacoes", 0, 1)
         pdf.set_font("Arial", "", 12)
-        pdf.multi_cell(0, 10, analysis.get("observacoes", "N/A"))
+        pdf.multi_cell(0, 10, normalizar_texto_pdf(analysis.get("observacoes", "N/A")))
         pdf.ln(5)
     
     # Avaliação por grupos
@@ -208,7 +225,7 @@ def create_pdf(analysis, transcript_text, tipo_avaliacao):
     for grupo in grupos:
         # Nome do grupo
         pdf.set_font("Arial", "B", 13)
-        pdf.multi_cell(0, 10, grupo.get("nome_grupo", ""))
+        pdf.multi_cell(0, 10, normalizar_texto_pdf(grupo.get("nome_grupo", "")))
         pdf.ln(2)
         
         # Critérios do grupo
@@ -220,10 +237,10 @@ def create_pdf(analysis, transcript_text, tipo_avaliacao):
             justificativa = criterio.get('justificativa', '')
             
             pdf.set_font("Arial", "B", 11)
-            pdf.multi_cell(0, 8, f"{item_num}. {criterio_texto}")
+            pdf.multi_cell(0, 8, normalizar_texto_pdf(f"{item_num}. {criterio_texto}"))
             pdf.set_font("Arial", "", 11)
             pdf.cell(0, 8, f"Resposta: {resposta}", 0, 1)
-            pdf.multi_cell(0, 8, f"Justificativa: {justificativa}")
+            pdf.multi_cell(0, 8, normalizar_texto_pdf(f"Justificativa: {justificativa}"))
             pdf.ln(3)
         
         pdf.ln(5)
@@ -233,9 +250,14 @@ def create_pdf(analysis, transcript_text, tipo_avaliacao):
     pdf.set_font("Arial", "B", 14)
     pdf.cell(0, 10, "Transcricao da Ligacao", 0, 1)
     pdf.set_font("Arial", "", 10)
-    pdf.multi_cell(0, 10, transcript_text)
+    pdf.multi_cell(0, 10, normalizar_texto_pdf(transcript_text))
     
-    return pdf.output(dest="S").encode("latin1")
+    # Gerar PDF como bytes usando modo compatível com UTF-8
+    pdf_output = pdf.output(dest="S")
+    # Retornar como bytes, tratando encoding
+    if isinstance(pdf_output, str):
+        return pdf_output.encode("latin1", errors="ignore")
+    return pdf_output
 
 # Função para criar link de download do PDF
 def get_pdf_download_link(pdf_bytes, filename):
