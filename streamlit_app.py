@@ -316,7 +316,7 @@ h1, h2, h3 {
 modelo_gpt = "gpt-4-turbo"
 
 # Título
-st.title("MonitorAI")
+st.title("MonitorAI (Quality) - dev")
 st.write("Análise inteligente de ligações: avaliação de atendimento ao cliente com múltiplos formulários.")
 
 # Seletor de tipo de avaliação
