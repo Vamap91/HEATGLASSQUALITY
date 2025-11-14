@@ -341,12 +341,18 @@ if uploaded_file is not None:
     if st.button("🔍 Analisar Atendimento"):
         # Transcrição via Whisper
         with st.spinner("Transcrevendo o áudio..."):
-            with open(tmp_path, "rb") as audio_file:
-                transcript = client.audio.transcriptions.create(
-                    model="whisper-1",
-                    file=audio_file
-                )
-            transcript_text = transcript.text
+            try:
+                with open(tmp_path, "rb") as audio_file:
+                    transcript = client.audio.transcriptions.create(
+                        model="whisper-1",
+                        file=audio_file
+                    )
+                transcript_text = transcript.text
+            except Exception as e:
+                st.error(f"❌ Erro ao transcrever áudio: {str(e)}")
+                st.warning("💡 Possíveis causas: arquivo muito grande, formato inválido, ou problema com a API da OpenAI.")
+                st.info("🔧 Sugestões: Verifique se o arquivo é um MP3 válido e menor que 25MB.")
+                st.stop()
 
         with st.expander("Ver transcrição completa"):
             st.code(transcript_text, language="markdown")
@@ -427,8 +433,11 @@ if uploaded_file is not None:
                     st.error(f"Erro ao gerar PDF: {str(pdf_error)}")
 
             except Exception as e:
-                st.error(f"Erro ao processar a análise: {str(e)}")
+                st.error(f"❌ Erro ao processar a análise: {str(e)}")
+                st.warning("💡 Possíveis causas: limite de tokens excedido, problema com a API da OpenAI, ou erro de conexão.")
+                st.info("🔧 Sugestões: Tente novamente em alguns segundos ou verifique se a API Key está configurada corretamente.")
                 try:
-                    st.text_area("Resposta da IA:", value=response.choices[0].message.content.strip(), height=300)
+                    st.text_area("Resposta da IA (para debug):", value=response.choices[0].message.content.strip(), height=300)
                 except:
-                    st.text_area("Não foi possível recuperar a resposta da IA", height=300)
+                    st.warning("⚠️ Não foi possível recuperar a resposta da IA para debug.")
+
